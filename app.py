@@ -11,13 +11,11 @@ from PIL import Image
 from pymongo import MongoClient
 from bson import ObjectId
 try:
-    import tensorflow as tf
     from sklearn.metrics.pairwise import cosine_similarity
-    TF_AVAILABLE = True
+    SKLEARN_AVAILABLE = True
 except ImportError:
-    print("TensorFlow not available, using basic face recognition")
-    TF_AVAILABLE = False
-    tf = None
+    print("Scikit-learn not available, using basic similarity")
+    SKLEARN_AVAILABLE = False
 
 load_dotenv()
 
@@ -38,45 +36,16 @@ recognition_data_collection = db.recognition_data
 # Load face detection model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Initialize TensorFlow face recognition model
+# Simple face recognition without TensorFlow
 face_model = None
-if TF_AVAILABLE:
-    try:
-        # Load MobileNet for face embeddings
-        base_model = tf.keras.applications.MobileNetV2(
-            input_shape=(224, 224, 3),
-            include_top=False,
-            weights='imagenet'
-        )
-        face_model = tf.keras.Sequential([
-            base_model,
-            tf.keras.layers.GlobalAveragePooling2D(),
-            tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dense(64, activation=None)  # Face embedding layer
-        ])
-        print("TensorFlow face recognition model loaded successfully")
-    except Exception as e:
-        print(f"Warning: TensorFlow model loading failed: {e}")
-        face_model = None
+print("Using basic face recognition without TensorFlow")
 
 def extract_face_embedding(face_image):
-    """Extract face embedding using TensorFlow model or basic features"""
+    """Extract basic face features"""
     try:
-        if face_model is not None and TF_AVAILABLE:
-            # Preprocess face image
-            face_resized = cv2.resize(face_image, (224, 224))
-            face_normalized = face_resized.astype('float32') / 255.0
-            face_batch = np.expand_dims(face_normalized, axis=0)
-            
-            # Get embedding
-            embedding = face_model.predict(face_batch, verbose=0)
-            return embedding[0]  # Return first (and only) embedding
-        else:
-            # Fallback: use basic image features
-            face_resized = cv2.resize(face_image, (64, 64))
-            face_gray = cv2.cvtColor(face_resized, cv2.COLOR_BGR2GRAY)
-            return face_gray.flatten().astype('float32') / 255.0
-        
+        face_resized = cv2.resize(face_image, (64, 64))
+        face_gray = cv2.cvtColor(face_resized, cv2.COLOR_BGR2GRAY)
+        return face_gray.flatten().astype('float32') / 255.0
     except Exception as e:
         print(f"Face embedding extraction error: {e}")
         return None
@@ -91,23 +60,12 @@ def compare_faces(embedding1, embedding2, threshold=0.65):
         embedding1 = embedding1 / (np.linalg.norm(embedding1) + 1e-8)
         embedding2 = embedding2 / (np.linalg.norm(embedding2) + 1e-8)
         
-        if TF_AVAILABLE:
+        if SKLEARN_AVAILABLE:
             try:
-                # Cosine similarity
-                cosine_sim = cosine_similarity([embedding1], [embedding2])[0][0]
-                
-                # Euclidean distance similarity
-                euclidean_dist = np.linalg.norm(embedding1 - embedding2)
-                euclidean_sim = 1.0 / (1.0 + euclidean_dist)
-                
-                # Combined similarity (weighted average)
-                similarity = 0.7 * cosine_sim + 0.3 * euclidean_sim
-                
+                similarity = cosine_similarity([embedding1], [embedding2])[0][0]
             except:
-                # Fallback to basic similarity
                 similarity = 1.0 - np.linalg.norm(embedding1 - embedding2) / 2.0
         else:
-            # Basic similarity using normalized correlation
             similarity = np.corrcoef(embedding1, embedding2)[0, 1]
             if np.isnan(similarity):
                 similarity = 0.0
@@ -170,10 +128,7 @@ def validate_user_role(token, required_role=None):
     except Exception as e:
         return False
 
-if TF_AVAILABLE and face_model is not None:
-    print("Siksha Attend initialized with MongoDB Atlas and TensorFlow face recognition")
-else:
-    print("Siksha Attend initialized with MongoDB Atlas and basic face recognition")
+print("Siksha Attend initialized with MongoDB Atlas and basic face recognition")
 
 @app.route('/')
 def index():
