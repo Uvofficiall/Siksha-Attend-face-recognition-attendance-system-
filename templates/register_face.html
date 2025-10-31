@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Register Face - Siksha Attend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-md mx-auto min-h-screen border-l border-r border-gray-200 bg-white">
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-100">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center border border-purple-100">
+                            <span class="text-lg">📸</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900">Register Face</h1>
+                            <p class="text-gray-500 text-sm">Add student face data</p>
+                        </div>
+                    </div>
+                    <button onclick="goBack()" class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-4 space-y-6">
+            <!-- Student Selection -->
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Select Student</h3>
+                    <select id="studentSelect" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 font-medium appearance-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all">
+                        <option value="">👥 Choose a student...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Camera Section -->
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden card-hover">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2m8 3a5 5 0 00-5 5 5 5 0 005 5 5 5 0 005-5 5 5 0 00-5-5m0 2a3 3 0 013 3 3 3 0 01-3 3 3 3 0 01-3-3 3 3 0 013-3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Capture Face</h3>
+                                <p class="text-gray-500 text-sm">Position face in center</p>
+                            </div>
+                        </div>
+                        <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    <div class="relative mb-6" style="position: relative;">
+                        <video id="video" width="100%" height="250" autoplay muted class="rounded-2xl bg-gray-100 object-cover border border-gray-200" style="display: block;"></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div class="absolute inset-0 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center" id="camera-placeholder">
+                            <div class="text-center text-gray-500">
+                                <svg class="w-16 h-16 mx-auto mb-2 opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2m8 3a5 5 0 00-5 5 5 5 0 005 5 5 5 0 005-5 5 5 0 00-5-5m0 2a3 3 0 013 3 3 3 0 01-3 3 3 3 0 01-3-3 3 3 0 013-3z"/>
+                                </svg>
+                                <p class="text-sm">Camera Preview</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button id="startCamera" class="bg-purple-500 text-white py-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-md hover:bg-purple-600 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span>Start</span>
+                        </button>
+                        <button id="captureBtn" class="bg-green-500 text-white py-4 rounded-2xl font-semibold flex items-center justify-center space-x-2 shadow-md hover:bg-green-600 transition-colors" disabled>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2m8 9a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Capture</span>
+                        </button>
+                    </div>
+                    
+                    <div id="status" class="text-center p-4 bg-purple-50 rounded-2xl border border-purple-100">
+                        <div class="flex items-center justify-center space-x-2 text-purple-700">
+                            <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                            <span class="font-medium">Select student and start camera</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 rounded-3xl p-6 border border-blue-100">
+                <h3 class="text-lg font-bold text-blue-900 mb-3">📋 Instructions</h3>
+                <ul class="space-y-2 text-blue-800">
+                    <li class="flex items-start space-x-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>Select the student from dropdown</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>Start camera and position face in center</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>Ensure good lighting and clear face visibility</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>Capture 3-5 times from different angles for 100% accuracy</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>System learns and improves recognition over time</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Safe Area -->
+        <div class="h-24"></div>
+    </div>
+
+    <script>
+        class FaceRegistration {
+            constructor() {
+                this.video = document.getElementById('video');
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.stream = null;
+                this.isRecording = false;
+                this.trackingInterval = null;
+            }
+
+            async startCamera() {
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: 640, 
+                            height: 480,
+                            facingMode: 'user'
+                        } 
+                    });
+                    
+                    this.video.srcObject = this.stream;
+                    this.video.style.display = 'block';
+                    document.getElementById('camera-placeholder').style.display = 'none';
+                    
+                    this.isRecording = true;
+                    this.updateStatus('Camera started - Position your face in the center');
+                    
+                    // Start face tracking
+                    this.trackingInterval = setInterval(() => {
+                        this.trackFace();
+                    }, 200);
+                    
+                    document.getElementById('startCamera').disabled = true;
+                    document.getElementById('captureBtn').disabled = false;
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Camera access error:', error);
+                    this.updateStatus('Camera access denied or not available');
+                    return false;
+                }
+            }
+
+            stopCamera() {
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+                
+                if (this.trackingInterval) {
+                    clearInterval(this.trackingInterval);
+                    this.trackingInterval = null;
+                }
+                
+                this.clearFaceBox();
+                this.video.style.display = 'none';
+                document.getElementById('camera-placeholder').style.display = 'flex';
+                this.isRecording = false;
+                
+                document.getElementById('startCamera').disabled = false;
+                document.getElementById('captureBtn').disabled = true;
+            }
+            
+            drawFaceBox(face) {
+                if (!face) return;
+                
+                // Create or get existing face box overlay
+                let faceBox = document.getElementById('face-detection-box');
+                if (!faceBox) {
+                    faceBox = document.createElement('div');
+                    faceBox.id = 'face-detection-box';
+                    faceBox.style.position = 'absolute';
+                    faceBox.style.border = '3px solid #10B981';
+                    faceBox.style.borderRadius = '8px';
+                    faceBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                    faceBox.style.pointerEvents = 'none';
+                    faceBox.style.zIndex = '10';
+                    faceBox.style.transition = 'all 0.3s ease';
+                    
+                    // Add face detected label
+                    const label = document.createElement('div');
+                    label.style.position = 'absolute';
+                    label.style.top = '-30px';
+                    label.style.left = '0';
+                    label.style.backgroundColor = '#10B981';
+                    label.style.color = 'white';
+                    label.style.padding = '4px 8px';
+                    label.style.borderRadius = '4px';
+                    label.style.fontSize = '12px';
+                    label.style.fontWeight = 'bold';
+                    label.textContent = '✓ Face Detected';
+                    faceBox.appendChild(label);
+                    
+                    this.video.parentElement.appendChild(faceBox);
+                }
+                
+                // Calculate position relative to video element
+                const videoRect = this.video.getBoundingClientRect();
+                const videoParentRect = this.video.parentElement.getBoundingClientRect();
+                
+                const scaleX = videoRect.width / this.video.videoWidth;
+                const scaleY = videoRect.height / this.video.videoHeight;
+                
+                const x = face.x * scaleX;
+                const y = face.y * scaleY;
+                const width = face.w * scaleX;
+                const height = face.h * scaleY;
+                
+                faceBox.style.left = `${x}px`;
+                faceBox.style.top = `${y}px`;
+                faceBox.style.width = `${width}px`;
+                faceBox.style.height = `${height}px`;
+                faceBox.style.display = 'block';
+            }
+            
+            async trackFace() {
+                if (!this.isRecording) return;
+                
+                const imageData = this.captureFrame();
+                if (!imageData) return;
+                
+                try {
+                    const response = await fetch('/api/detect_face', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.faces_detected > 0) {
+                        this.drawFaceBox(result.faces[0]);
+                    } else {
+                        this.clearFaceBox();
+                    }
+                } catch (error) {
+                    // Silently handle tracking errors
+                }
+            }
+            
+            clearFaceBox() {
+                const faceBox = document.getElementById('face-detection-box');
+                if (faceBox) {
+                    faceBox.style.display = 'none';
+                }
+            }
+
+            captureFrame() {
+                if (!this.isRecording) return null;
+                
+                this.canvas.width = this.video.videoWidth;
+                this.canvas.height = this.video.videoHeight;
+                this.ctx.drawImage(this.video, 0, 0);
+                
+                return this.canvas.toDataURL('image/jpeg', 0.8);
+            }
+
+            async registerFace() {
+                const studentSelect = document.getElementById('studentSelect');
+                const studentId = studentSelect.value;
+                
+                if (!studentId) {
+                    alert('Please select a student first');
+                    return;
+                }
+                
+                if (!this.isRecording) {
+                    alert('Please start the camera first');
+                    return;
+                }
+                
+                const imageData = this.captureFrame();
+                if (!imageData) return;
+                
+                try {
+                    this.updateStatus('🔍 Detecting face...');
+                    
+                    // First check if face is detected
+                    const detectResponse = await fetch('/api/detect_face', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    const detectResult = await detectResponse.json();
+                    
+                    if (detectResult.faces_detected === 0) {
+                        this.clearFaceBox();
+                        this.updateStatus('❌ No face detected - Please position face clearly');
+                        return;
+                    }
+                    
+                    // Draw green box around detected face
+                    this.drawFaceBox(detectResult.faces[0]);
+                    
+                    this.updateStatus('🧠 Processing face features with AI...');
+                    
+                    const response = await fetch('/api/register_face', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            student_id: studentId,
+                            image: imageData 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        const captures = result.total_captures || 1;
+                        this.updateStatus(`✅ Face captured! (${captures}/5 for best accuracy)`);
+                        
+                        if (captures < 3) {
+                            setTimeout(() => {
+                                this.updateStatus('📸 Capture another angle for better accuracy');
+                            }, 2000);
+                        } else {
+                            this.updateStatus('🎯 Excellent! Face data saved with high accuracy');
+                            this.stopCamera();
+                            
+                            setTimeout(() => {
+                                if (confirm('Face registered with high accuracy! Register another student?')) {
+                                    studentSelect.value = '';
+                                    this.updateStatus('Select student and start camera');
+                                } else {
+                                    goBack();
+                                }
+                            }, 2000);
+                        }
+                        
+                    } else {
+                        this.updateStatus(`❌ ${result.message || 'Registration failed'}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.updateStatus('❌ Registration error - Please try again');
+                }
+            }
+
+            async loadStudents() {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch('/api/students/S1', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const students = await response.json();
+                        const select = document.getElementById('studentSelect');
+                        
+                        select.innerHTML = '<option value="">👥 Choose a student...</option>';
+                        
+                        students.forEach(student => {
+                            const option = document.createElement('option');
+                            option.value = student.id;
+                            option.textContent = `${student.name} (${student.roll_no})`;
+                            select.appendChild(option);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading students:', error);
+                }
+            }
+
+            updateStatus(message) {
+                const statusElement = document.getElementById('status');
+                if (statusElement) {
+                    statusElement.innerHTML = `
+                        <div class="flex items-center justify-center space-x-2 text-purple-700">
+                            <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                            <span class="font-medium">${message}</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Initialize
+        const faceRegistration = new FaceRegistration();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            faceRegistration.loadStudents();
+            
+            document.getElementById('startCamera').addEventListener('click', () => {
+                faceRegistration.startCamera();
+            });
+            
+            document.getElementById('captureBtn').addEventListener('click', () => {
+                faceRegistration.registerFace();
+            });
+        });
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.1); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-md mx-auto min-h-screen border-l border-r border-gray-200 bg-white">
+
+        
+        <!-- Header -->
+        <div class="relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600"></div>
+            <div class="relative p-6 text-white">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                            <span class="text-lg font-bold" id="roleIcon">👨💼</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold" id="roleTitle">Admin Panel</h1>
+                            <p class="text-white/80 text-sm" id="roleSubtitle">School Management Hub</p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 012 2v2h-2V4H4v16h10v-2h2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2h10z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+                        <div class="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.996 2.996 0 0017 6.5c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H14c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1v6h3zm-11.5-6L10 14h4l1.5 2H18v2H6v-2h2.5zm2.5-6c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                            </svg>
+                        </div>
+                        <div class="text-2xl font-bold" id="totalStudents">0</div>
+                        <div class="text-white/80 text-xs">Students</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+                        <div class="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        </div>
+                        <div class="text-2xl font-bold" id="presentToday">0</div>
+                        <div class="text-white/80 text-xs">Present</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+                        <div class="w-8 h-8 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </div>
+                        <div class="text-2xl font-bold" id="absentToday">0</div>
+                        <div class="text-white/80 text-xs">Absent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-4 space-y-6 -mt-4">
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20 card-hover" onclick="showAddStudentModal()">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">Add Student</h3>
+                    <p class="text-gray-500 text-sm">New enrollment</p>
+                </div>
+                
+                <div class="bg-white/95 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20 card-hover" onclick="window.location.href='/register-face'">
+                    <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2m8 9a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">Register Face</h3>
+                    <p class="text-gray-500 text-sm">Add face data</p>
+                </div>
+            </div>
+
+            <!-- Attendance Reports -->
+            <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L3.5 15.9l-.01.01-.01.01c0 .01 0 .01.01.01l.01.01c.01.01.01.01.01.01L3.5 18.49z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Attendance Reports</h3>
+                                <p class="text-gray-500 text-sm">Daily attendance tracking</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mb-6">
+                        <div class="flex-1 relative">
+                            <input type="date" id="dateFilter" class="w-full p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-0 rounded-2xl text-gray-900 font-medium focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+                        <button id="filterBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="attendanceTable" class="space-y-3 max-h-80 overflow-y-auto">
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium">No records found</p>
+                            <p class="text-gray-400 text-sm mt-1">Select a date to view attendance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Management -->
+            <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.996 2.996 0 0017 6.5c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H14c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1v6h3zm-11.5-6L10 14h4l1.5 2H18v2H6v-2h2.5zm2.5-6c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Student Directory</h3>
+                                <p class="text-gray-500 text-sm">Manage student records</p>
+                            </div>
+                        </div>
+                        <button onclick="showAddStudentModal()" class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="studentsTable" class="space-y-3 max-h-80 overflow-y-auto">
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.996 2.996 0 0017 6.5c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H14c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1v6h3zm-11.5-6L10 14h4l1.5 2H18v2H6v-2h2.5zm2.5-6c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium">No students enrolled</p>
+                            <p class="text-gray-400 text-sm mt-1">Add students to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Safe Area -->
+        <div class="h-24"></div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-6 w-80 mx-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4">Add Student</h3>
+            <form id="studentForm">
+                <div class="space-y-4">
+                    <input type="hidden" id="studentId">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                        <input type="text" id="studentName" required class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter student's full name">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Roll Number *</label>
+                            <input type="text" id="studentRoll" required class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 001">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Class *</label>
+                            <select id="studentClass" required class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Class</option>
+                                <option value="1">Class 1</option>
+                                <option value="2">Class 2</option>
+                                <option value="3">Class 3</option>
+                                <option value="4">Class 4</option>
+                                <option value="5">Class 5</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
+                                <option value="11">Class 11</option>
+                                <option value="12">Class 12</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                            <input type="date" id="studentDOB" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                            <select id="studentGender" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Name</label>
+                        <input type="text" id="studentParent" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Father's/Mother's/Guardian's name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                        <input type="tel" id="studentPhone" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="10-digit mobile number">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="hideStudentModal()" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-6 w-80 mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Student</h3>
+                <p class="text-gray-600 mb-6">Are you sure you want to delete <span id="deleteStudentName" class="font-semibold text-gray-900"></span>?</p>
+                <p class="text-sm text-gray-500 mb-6">This action cannot be undone.</p>
+                <div class="flex gap-3">
+                    <button onclick="hideDeleteModal()" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold">
+                        Cancel
+                    </button>
+                    <button id="confirmDelete" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const SCHOOL_ID = 'S1';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set role-based UI
+            const userRole = localStorage.getItem('userRole');
+            const roleIcon = document.getElementById('roleIcon');
+            const roleTitle = document.getElementById('roleTitle');
+            const roleSubtitle = document.getElementById('roleSubtitle');
+            
+            if (userRole === 'super_admin') {
+                roleIcon.textContent = '🔧';
+                roleTitle.textContent = 'Super Admin Panel';
+                roleSubtitle.textContent = 'System Control Center';
+            } else {
+                roleIcon.textContent = '👨💼';
+                roleTitle.textContent = 'Admin Panel';
+                roleSubtitle.textContent = 'School Management Hub';
+            }
+            
+            loadDashboardData();
+            loadStudents();
+            document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
+            loadAttendanceReports();
+        });
+
+        document.getElementById('filterBtn').addEventListener('click', loadAttendanceReports);
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(`/api/students/${SCHOOL_ID}`);
+                const students = await response.json();
+                
+                document.getElementById('totalStudents').textContent = students.length;
+                
+                const today = new Date().toISOString().split('T')[0];
+                const attendanceResponse = await fetch(`/api/attendance/${SCHOOL_ID}?date=${today}`);
+                const attendance = await attendanceResponse.json();
+                
+                const presentCount = new Set(attendance.map(record => record.student_id)).size;
+                document.getElementById('presentToday').textContent = presentCount;
+                document.getElementById('absentToday').textContent = students.length - presentCount;
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadAttendanceReports() {
+            try {
+                const date = document.getElementById('dateFilter').value;
+                
+                const response = await fetch(`/api/attendance/${SCHOOL_ID}?date=${date}`);
+                const records = await response.json();
+                
+                const studentsResponse = await fetch(`/api/students/${SCHOOL_ID}`);
+                const students = await studentsResponse.json();
+                
+                const studentsMap = {};
+                students.forEach(student => {
+                    studentsMap[student.id] = student;
+                });
+                
+                const tbody = document.getElementById('attendanceTable');
+                tbody.innerHTML = '';
+                
+                if (records.length === 0) {
+                    tbody.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium">No records found</p>
+                            <p class="text-gray-400 text-sm mt-1">No attendance for selected date</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                records.forEach(record => {
+                    const student = studentsMap[record.student_id];
+                    if (student) {
+                        const time = new Date(record.timestamp_iso).toLocaleTimeString();
+                        tbody.innerHTML += `
+                            <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-4 flex items-center justify-between border border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
+                                        ${student.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">${student.name}</div>
+                                        <div class="text-sm text-gray-500">Roll: ${student.roll_no} • Class: ${student.class}</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-900">${time}</div>
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                        record.method === 'face' 
+                                            ? 'bg-emerald-100 text-emerald-800' 
+                                            : 'bg-blue-100 text-blue-800'
+                                    }">
+                                        ${record.method === 'face' ? '🤖' : '✋'} ${record.method}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading attendance reports:', error);
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch(`/api/students/${SCHOOL_ID}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const students = await response.json();
+                
+                if (students.error) {
+                    throw new Error(students.error);
+                }
+                
+                const tbody = document.getElementById('studentsTable');
+                tbody.innerHTML = '';
+                
+                if (students.length === 0) {
+                    tbody.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-10 h-10 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A2.996 2.996 0 0017 6.5c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H14c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1v6h3zm-11.5-6L10 14h4l1.5 2H18v2H6v-2h2.5zm2.5-6c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium">No students enrolled</p>
+                            <p class="text-gray-400 text-sm mt-1">Add students to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                students.forEach(student => {
+                    const studentCard = document.createElement('div');
+                    studentCard.className = 'bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-4 border border-gray-200';
+                    studentCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
+                                    ${student.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">${student.name}</div>
+                                    <div class="text-sm text-gray-500">Roll: ${student.roll_no} • Class: ${student.class}</div>
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="edit-btn flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-xl text-sm font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transition-all">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                                <span>Edit</span>
+                            </button>
+                            <button class="delete-btn flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl text-sm font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transition-all">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Add event listeners
+                    studentCard.querySelector('.edit-btn').addEventListener('click', () => {
+                        editStudent(student.id, student.name, student.roll_no, student.class);
+                    });
+                    
+                    studentCard.querySelector('.delete-btn').addEventListener('click', () => {
+                        deleteStudent(student.id, student.name);
+                    });
+                    
+                    tbody.appendChild(studentCard);
+                });
+                
+            } catch (error) {
+                showErrorMessage('Failed to load students: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '/';
+        }
+
+        function showAddStudentModal() {
+            console.log('Opening Add Student Modal');
+            document.getElementById('modalTitle').textContent = 'Add Student';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentId').value = '';
+            
+            // Clear all form fields
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentRoll').value = '';
+            document.getElementById('studentClass').value = '';
+            document.getElementById('studentDOB').value = '';
+            document.getElementById('studentGender').value = '';
+            document.getElementById('studentParent').value = '';
+            document.getElementById('studentPhone').value = '';
+            
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function editStudent(id, name, rollNo, className) {
+            console.log('Editing student:', id, name, rollNo, className);
+            document.getElementById('modalTitle').textContent = 'Edit Student';
+            document.getElementById('studentId').value = id;
+            document.getElementById('studentName').value = name || '';
+            document.getElementById('studentRoll').value = rollNo || '';
+            document.getElementById('studentClass').value = className || '';
+            
+            // Clear optional fields for edit mode
+            document.getElementById('studentDOB').value = '';
+            document.getElementById('studentGender').value = '';
+            document.getElementById('studentParent').value = '';
+            document.getElementById('studentPhone').value = '';
+            
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function hideStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        let deleteStudentId = null;
+        
+        function deleteStudent(id, name) {
+            console.log('Deleting student:', id, name);
+            deleteStudentId = id;
+            document.getElementById('deleteStudentName').textContent = name || 'this student';
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            deleteStudentId = null;
+        }
+        
+        document.getElementById('confirmDelete').addEventListener('click', async () => {
+            if (deleteStudentId) {
+                try {
+                    const response = await fetch(`/api/delete_student/${deleteStudentId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showSuccessMessage('Student deleted successfully!');
+                        loadStudents();
+                        loadDashboardData();
+                        hideDeleteModal();
+                    } else {
+                        showErrorMessage('Error: ' + (result.message || result.error));
+                    }
+                } catch (error) {
+                    showErrorMessage('Error deleting student: ' + error.message);
+                }
+            }
+        });
+
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            const studentId = document.getElementById('studentId').value;
+            const studentData = {
+                name: document.getElementById('studentName').value.trim(),
+                roll_no: document.getElementById('studentRoll').value.trim(),
+                class: document.getElementById('studentClass').value.trim(),
+                date_of_birth: document.getElementById('studentDOB').value,
+                gender: document.getElementById('studentGender').value,
+                parent_name: document.getElementById('studentParent').value.trim(),
+                contact_number: document.getElementById('studentPhone').value.trim()
+            };
+            
+            console.log('Student data:', studentData);
+            
+            if (!studentData.name || !studentData.roll_no || !studentData.class) {
+                showErrorMessage('Please fill all required fields (marked with *)');
+                return;
+            }
+            
+            // Validate phone number if provided
+            if (studentData.contact_number && !/^[0-9]{10}$/.test(studentData.contact_number)) {
+                showErrorMessage('Please enter a valid 10-digit phone number');
+                return;
+            }
+            
+            try {
+                let response;
+                let url;
+                let method;
+                
+                if (studentId) {
+                    url = `/api/update_student/${studentId}`;
+                    method = 'PUT';
+                    console.log('Updating student:', studentId);
+                } else {
+                    url = '/api/add_student';
+                    method = 'POST';
+                    console.log('Adding new student');
+                }
+                
+                response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Response result:', result);
+                
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    hideStudentModal();
+                    await loadStudents();
+                    await loadDashboardData();
+                } else {
+                    showErrorMessage('Error: ' + (result.message || result.error));
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                showErrorMessage('Error saving student: ' + error.message);
+            }
+        });
+        
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-2xl shadow-lg z-50';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        function showErrorMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-2xl shadow-lg z-50';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('studentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'studentModal') {
+                hideStudentModal();
+            }
+        });
+        
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deleteModal') {
+                hideDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

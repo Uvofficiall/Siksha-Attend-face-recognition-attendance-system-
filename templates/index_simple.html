@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siksha Attend - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-10 rounded-xl shadow-xl w-full max-w-md mx-4">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-600">Siksha Attend</h1>
+        
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" id="email" value="demo@school.com" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" id="password" value="demo123" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-1">Role</label>
+                <select id="role" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500">
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">School Admin</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+                Login (Demo Mode)
+            </button>
+        </form>
+        
+        <div class="mt-4 text-sm text-gray-600 text-center">
+            Demo credentials pre-filled. Just click Login.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const role = document.getElementById('role').value;
+            
+            // Demo mode - skip authentication
+            localStorage.setItem('authToken', 'demo-token');
+            localStorage.setItem('userRole', role);
+            
+            if (role === 'teacher') {
+                window.location.href = '/teacher';
+            } else {
+                window.location.href = '/admin';
+            }
+        });
+    </script>
+</body>
+</html>

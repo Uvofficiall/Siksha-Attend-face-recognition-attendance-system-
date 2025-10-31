@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CRUD Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Test Student CRUD Operations</h1>
+        
+        <!-- Add Student Form -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <h2 class="text-xl font-bold mb-4">Add Student</h2>
+            <form id="addForm" class="grid grid-cols-3 gap-4">
+                <input type="text" id="addName" placeholder="Name" class="border p-2 rounded" required>
+                <input type="text" id="addRoll" placeholder="Roll Number" class="border p-2 rounded" required>
+                <input type="text" id="addClass" placeholder="Class" class="border p-2 rounded" required>
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded col-span-3">Add Student</button>
+            </form>
+        </div>
+        
+        <!-- Students List -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Students List</h2>
+                <button onclick="loadStudents()" class="bg-green-500 text-white px-4 py-2 rounded">Refresh</button>
+            </div>
+            <div id="studentsList"></div>
+        </div>
+        
+        <!-- Console Log -->
+        <div class="bg-black text-green-400 p-4 rounded-lg mt-8">
+            <h3 class="text-lg font-bold mb-2">Console Log:</h3>
+            <div id="console" class="font-mono text-sm max-h-64 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        const SCHOOL_ID = 'S1';
+        
+        function log(message) {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            console.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        // Add Student
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const studentData = {
+                name: document.getElementById('addName').value,
+                roll_no: document.getElementById('addRoll').value,
+                class: document.getElementById('addClass').value
+            };
+            
+            log(`Adding student: ${JSON.stringify(studentData)}`);
+            
+            try {
+                const response = await fetch('/api/add_student', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                });
+                
+                log(`Response status: ${response.status}`);
+                const result = await response.json();
+                log(`Response: ${JSON.stringify(result)}`);
+                
+                if (result.success) {
+                    document.getElementById('addForm').reset();
+                    loadStudents();
+                }
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        });
+        
+        // Load Students
+        async function loadStudents() {
+            log(`Loading students for school: ${SCHOOL_ID}`);
+            
+            try {
+                const response = await fetch(`/api/students/${SCHOOL_ID}`);
+                log(`Response status: ${response.status}`);
+                const students = await response.json();
+                log(`Students loaded: ${students.length}`);
+                
+                const listDiv = document.getElementById('studentsList');
+                listDiv.innerHTML = '';
+                
+                if (students.length === 0) {
+                    listDiv.innerHTML = '<p class="text-gray-500">No students found</p>';
+                    return;
+                }
+                
+                students.forEach(student => {
+                    listDiv.innerHTML += `
+                        <div class="border p-4 rounded mb-2 flex justify-between items-center">
+                            <div>
+                                <strong>${student.name}</strong> - Roll: ${student.roll_no} - Class: ${student.class}
+                            </div>
+                            <div class="space-x-2">
+                                <button onclick="updateStudent('${student.id}', '${student.name}', '${student.roll_no}', '${student.class}')" 
+                                        class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
+                                <button onclick="deleteStudent('${student.id}', '${student.name}')" 
+                                        class="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                log(`Error loading students: ${error.message}`);
+            }
+        }
+        
+        // Update Student
+        async function updateStudent(id, name, roll, className) {
+            const newName = prompt('Enter new name:', name);
+            const newRoll = prompt('Enter new roll:', roll);
+            const newClass = prompt('Enter new class:', className);
+            
+            if (!newName || !newRoll || !newClass) return;
+            
+            const updateData = {
+                name: newName,
+                roll_no: newRoll,
+                class: newClass
+            };
+            
+            log(`Updating student ${id}: ${JSON.stringify(updateData)}`);
+            
+            try {
+                const response = await fetch(`/api/update_student/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                log(`Update response status: ${response.status}`);
+                const result = await response.json();
+                log(`Update response: ${JSON.stringify(result)}`);
+                
+                if (result.success) {
+                    loadStudents();
+                }
+            } catch (error) {
+                log(`Error updating student: ${error.message}`);
+            }
+        }
+        
+        // Delete Student
+        async function deleteStudent(id, name) {
+            if (!confirm(`Delete ${name}?`)) return;
+            
+            log(`Deleting student ${id}: ${name}`);
+            
+            try {
+                const response = await fetch(`/api/delete_student/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                log(`Delete response status: ${response.status}`);
+                const result = await response.json();
+                log(`Delete response: ${JSON.stringify(result)}`);
+                
+                if (result.success) {
+                    loadStudents();
+                }
+            } catch (error) {
+                log(`Error deleting student: ${error.message}`);
+            }
+        }
+        
+        // Load students on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded, loading students...');
+            loadStudents();
+        });
+    </script>
+</body>
+</html>

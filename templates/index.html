@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Siksha Attend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.1); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:active { transform: scale(0.98); }
+        .floating-label { transition: all 0.2s ease; }
+        .input-focus:focus + .floating-label { transform: translateY(-1.5rem) scale(0.8); color: #6366f1; }
+        .input-filled + .floating-label { transform: translateY(-1.5rem) scale(0.8); color: #6366f1; }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <div class="max-w-md mx-auto min-h-screen border-l border-r border-gray-200">
+
+        
+        <!-- App Container -->
+        <div class="min-h-screen flex flex-col">
+            <!-- Header -->
+            <div class="flex-1 flex items-center justify-center p-6">
+                <div class="w-full max-w-sm">
+                    <!-- App Logo -->
+                    <div class="text-center mb-12">
+                        <div class="w-24 h-24 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7V9C15 11.8 12.8 14 10 14S5 11.8 5 9V7H3V9C3 12.9 6.1 16 10 16V22H14V16C17.9 16 21 12.9 21 9Z"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2">Siksha Attend</h1>
+                        <p class="text-gray-600 text-lg">Smart Attendance System</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div class="bg-white rounded-3xl p-8 border border-gray-200 shadow-2xl">
+                        <form id="loginForm" class="space-y-6">
+                            <!-- Email Input -->
+                            <div class="relative">
+                                <input type="email" id="email" required class="input-focus w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                                <label for="email" class="floating-label absolute left-4 top-4 text-gray-500 pointer-events-none">Email Address</label>
+                            </div>
+                            
+                            <!-- Password Input -->
+                            <div class="relative">
+                                <input type="password" id="password" required class="input-focus w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
+                                <label for="password" class="floating-label absolute left-4 top-4 text-gray-500 pointer-events-none">Password</label>
+                            </div>
+                            
+                            <!-- Role Selection -->
+                            <div class="space-y-3">
+                                <label class="text-gray-700 font-medium text-sm">Select Your Role</label>
+                                <div class="relative">
+                                    <button type="button" id="roleDropdown" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <div class="flex items-center space-x-3" id="selectedRole">
+                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                                                <span class="text-lg">👨🏫</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-800 font-semibold">Teacher</div>
+                                                <div class="text-gray-500 text-sm">Take attendance</div>
+                                            </div>
+                                        </div>
+                                        <svg class="w-5 h-5 text-gray-400 transition-transform" id="dropdownIcon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M7 10l5 5 5-5z"/>
+                                        </svg>
+                                    </button>
+                                    
+                                    <div id="roleOptions" class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg z-10 hidden">
+                                        <div class="p-2 space-y-1">
+                                            <button type="button" class="role-option w-full flex items-center p-3 hover:bg-gray-50 rounded-xl transition-all" data-value="teacher">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mr-3">
+                                                    <span class="text-lg">👨🏫</span>
+                                                </div>
+                                                <div>
+                                                    <div class="text-gray-800 font-semibold">Teacher</div>
+                                                    <div class="text-gray-500 text-sm">Take attendance</div>
+                                                </div>
+                                            </button>
+                                            <button type="button" class="role-option w-full flex items-center p-3 hover:bg-gray-50 rounded-xl transition-all" data-value="admin">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3">
+                                                    <span class="text-lg">👨💼</span>
+                                                </div>
+                                                <div>
+                                                    <div class="text-gray-800 font-semibold">School Admin</div>
+                                                    <div class="text-gray-500 text-sm">Manage school</div>
+                                                </div>
+                                            </button>
+                                            <button type="button" class="role-option w-full flex items-center p-3 hover:bg-gray-50 rounded-xl transition-all" data-value="super_admin">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center mr-3">
+                                                    <span class="text-lg">🔧</span>
+                                                </div>
+                                                <div>
+                                                    <div class="text-gray-800 font-semibold">Super Admin</div>
+                                                    <div class="text-gray-500 text-sm">System control</div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="role" id="roleValue" value="teacher">
+                                </div>
+                            </div>
+                            
+                            <!-- Sign In Button -->
+                            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white py-4 rounded-2xl text-lg font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all card-hover">
+                                Sign In
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="text-center mt-8">
+                        <p class="text-gray-400 text-sm">Secure • Reliable • Smart</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZNWO4d1Bw88VJ2YEGxaesXwtGpSdVPlo",
+            authDomain: "siksha-attend.firebaseapp.com",
+            projectId: "siksha-attend",
+            storageBucket: "siksha-attend.firebasestorage.app",
+            messagingSenderId: "374349682817",
+            appId: "1:374349682817:web:a545ad8aed8ec82e305580",
+            measurementId: "G-CW88RGM3LK"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        
+        // Handle floating labels
+        document.querySelectorAll('.input-focus').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value) {
+                    this.classList.add('input-filled');
+                } else {
+                    this.classList.remove('input-filled');
+                }
+            });
+        });
+        
+        // Handle dropdown functionality
+        const roleDropdown = document.getElementById('roleDropdown');
+        const roleOptions = document.getElementById('roleOptions');
+        const dropdownIcon = document.getElementById('dropdownIcon');
+        const selectedRole = document.getElementById('selectedRole');
+        const roleValue = document.getElementById('roleValue');
+        
+        roleDropdown.addEventListener('click', function() {
+            roleOptions.classList.toggle('hidden');
+            dropdownIcon.style.transform = roleOptions.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+        
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const content = this.innerHTML;
+                
+                selectedRole.innerHTML = content;
+                roleValue.value = value;
+                roleOptions.classList.add('hidden');
+                dropdownIcon.style.transform = 'rotate(0deg)';
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!roleDropdown.contains(e.target) && !roleOptions.contains(e.target)) {
+                roleOptions.classList.add('hidden');
+                dropdownIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('roleValue').value;
+            
+            // Predefined UIDs for each role
+            const roleUIDs = {
+                'teacher': 'YkkyFCnR0kgJfq3Q0GyzBOyUPAI2',
+                'admin': '8C1EXFLKcjgRCkaqrLHd0GuNfjs2',
+                'super_admin': 'kkeqYgaGRRW8k81fbciC1IfKiIr2'
+            };
+            
+            try {
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                const token = await user.getIdToken();
+                
+                // Check if user UID matches the role
+                if (user.uid === roleUIDs[role]) {
+                    localStorage.setItem('authToken', token);
+                    localStorage.setItem('userRole', role);
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userUID', user.uid);
+                    
+                    if (role === 'teacher') {
+                        window.location.href = '/teacher';
+                    } else if (role === 'admin' || role === 'super_admin') {
+                        window.location.href = '/admin';
+                    }
+                } else {
+                    throw new Error('Invalid role selected for this account');
+                }
+            } catch (error) {
+                // Show error with modern styling
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-white px-6 py-3 rounded-2xl shadow-2xl z-50';
+                errorDiv.textContent = error.message || 'Login failed';
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
