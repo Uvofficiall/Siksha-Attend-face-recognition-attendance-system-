@@ -1,5 +1,7 @@
 # Siksha Attend - Automated Attendance System
 
+[**Live Demo**](https://siksha-attend.onrender.com)
+
 ## Setup Instructions
 
 ### 1. Firebase Setup
@@ -100,3 +102,11 @@ python app.py
 - JWT token validation on API endpoints
 - Device ID tracking for audit trails
 - Secure face embedding storage
+- 
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
+
+## Authors
+
+- [YUVRAJ SHARMA](https://github.com/Uvofficiall)
